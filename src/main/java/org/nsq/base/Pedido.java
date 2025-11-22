@@ -8,8 +8,8 @@ import java.util.List;
 public class Pedido {
     private final List<Producto> detallesPedido;
 
-    public Pedido(List<Producto> detallesPedido) {
-        this.detallesPedido = detallesPedido;
+    public Pedido() {
+        this.detallesPedido = new ArrayList<>();
     }
 
     public boolean agregarProducto(Producto producto, int cantidad) {
@@ -63,5 +63,9 @@ public class Pedido {
             throw new IllegalArgumentException("Error: monto inválido");
         }
         return subtotal - (subtotal * (descuento / 100));
+    }
+
+    public List<Producto> getDetallesPedido() {
+        return detallesPedido;
     }
 }
