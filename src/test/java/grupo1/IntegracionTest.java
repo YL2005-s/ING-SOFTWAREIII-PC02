@@ -1,5 +1,6 @@
 package grupo1;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.nsq.base.Pedido;
 import org.nsq.grupo1.Servicio1;
@@ -10,57 +11,36 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class IntegracionTest {
+    private Pedido pedido;
+    private Producto p1, p2;
+
+    @BeforeEach
+    void init() {
+        pedido = new Pedido();
+        p1 = new Producto("Laptop", 1500, 10, "SKU123", "Electrónica", true, true);
+        p2 = new Producto("Mouse", 50, 20, "SKU456", "Accesorios", true, false);
+    }
 
     @Test
     void testFlujoExitoso() {
-        List<Producto> productos = List.of(
-                new Producto("Laptop", 2500, 1),
-                new Producto("Mouse", 100, 2)
-        );
-
-        double total = Pedido.calcularTotalPedido(productos, 10);
-        boolean valido = Servicio1.verificarLimite(total);
-
-        assertTrue(valido);
+        assertTrue(pedido.agregarProducto(p1, 5));
+        assertTrue(pedido.validarStock());
+        assertTrue(Servicio1.validarDescuentoAplicable(p1, 10));
     }
 
     @Test
-    void testErrorBase() {
-        List<Producto> productos = List.of();
-
-        assertThrows(IllegalArgumentException.class,
-                () -> Pedido.calcularTotalPedido(productos, 10));
+    void testErrorPorDuplicado() {
+        assertTrue(pedido.agregarProducto(p1, 5));
+        assertFalse(pedido.agregarProducto(p1, 3));
+        assertTrue(pedido.validarStock());
+        assertFalse(Servicio1.validarDescuentoAplicable(p2, 60));
     }
 
     @Test
-    void testErrorSecundaria() {
-        List<Producto> productos = List.of(new Producto("TV", 6000, 1));
-
-        double total = Pedido.calcularTotalPedido(productos, 0);
-
-        assertFalse(Servicio1.verificarLimite(total));
-    }
-
-    @Test
-    void testValorLimite() {
-        List<Producto> productos = List.of(new Producto("Computadora", 5000, 1));
-
-        double total = Pedido.calcularTotalPedido(productos, 0);
-
-        assertTrue(Servicio1.verificarLimite(total));
-    }
-
-    @Test
-    void testCombinado() {
-        List<Producto> productos = List.of(
-                new Producto("SuperGalletota", 2000, 1),
-                new Producto("SuperGalletita", 1500, 1)
-        );
-
-        double total = Pedido.calcularTotalPedido(productos, 20);
-        boolean dentroLimite = Servicio1.verificarLimite(total);
-
-        assertTrue(dentroLimite);
-        assertEquals(2800.0, total);
+    void testStockInvalidoYServicio() {
+        Producto sinStock = new Producto("Monitor", 300, 0, "SKU999", "Electrónica", true, true);
+        pedido.agregarProducto(sinStock, 0);
+        assertFalse(pedido.validarStock());
+        assertTrue(Servicio1.validarDescuentoAplicable(sinStock, 15));
     }
 }
