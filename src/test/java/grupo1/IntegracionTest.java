@@ -39,7 +39,9 @@ public class IntegracionTest {
     @Test
     void testStockInvalidoYServicio() {
         Producto sinStock = new Producto("Monitor", 300, 0, "SKU999", "Electrónica", true, true);
-        pedido.agregarProducto(sinStock, 0);
+        pedido.agregarProducto(sinStock, 1);
+        pedido.getDetallesPedido().getFirst().setCantidad(0);
+
         assertFalse(pedido.validarStock());
         assertTrue(Servicio1.validarDescuentoAplicable(sinStock, 15));
     }
