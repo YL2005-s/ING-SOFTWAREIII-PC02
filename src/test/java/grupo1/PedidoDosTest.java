@@ -49,6 +49,44 @@ public class PedidoDosTest {
         assertEquals(5, agregado.getCantidad());
     }
 
+    @Test
+    void testProductoInactivoNoSeAgrega() {
+        Producto inactivo = new Producto("Teclado", 100, 10, "SKU789", "Accesorios", false, false);
+        assertFalse(pedido.agregarProducto(inactivo, 5));
+    }
+
+    @Test
+    void testListaVacia() {
+        assertTrue(pedido.validarStock());
+    }
+
+    @Test
+    void testTodosConStockValido() {
+        pedido.agregarProducto(p1, 5);
+        pedido.agregarProducto(p2, 10);
+        assertTrue(pedido.validarStock());
+    }
+
+    @Test
+    void testUnoConStockCero() {
+        Producto sinStock = new Producto("Monitor", 300, 0, "SKU999", "Electrónica", true, false);
+        pedido.agregarProducto(sinStock, 0);
+        assertFalse(pedido.validarStock());
+    }
+
+    @Test
+    void testCantidadNegativa() {
+        Producto negativo = new Producto("Cable", 20, 5, "SKU888", "Accesorios", true, false);
+        pedido.agregarProducto(negativo, -3);
+        assertFalse(pedido.agregarProducto(negativo, -3));
+    }
+
+    @Test
+    void testValoresLimite() {
+        pedido.agregarProducto(p1, 1);
+        pedido.agregarProducto(p2, 999);
+        assertTrue(pedido.validarStock());
+    }
 
 
 }
